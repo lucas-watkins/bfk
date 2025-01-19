@@ -6,6 +6,10 @@ plugins {
 group = "com.lucaspowered"
 version = "1.0-SNAPSHOT"
 
+application {
+    mainClass = "com.lucaspowered.bfk.MainKt"
+}
+
 repositories {
     mavenCentral()
 }

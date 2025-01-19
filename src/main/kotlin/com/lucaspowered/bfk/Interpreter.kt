@@ -2,26 +2,27 @@ package com.lucaspowered.bfk
 
 import java.io.OutputStream
 
-class Interpreter(private val byteArraySize: Int, private val stream: OutputStream) {
+class Interpreter(byteArraySize: Int, private val stream: OutputStream) {
     private val memory = CharArray(byteArraySize)
     private var memoryIndex = 0
 
     fun parse(input: String) {
         var inputIndex = 0
-        while (inputIndex < input.lastIndex) {
+        while (inputIndex < input.length) {
             if (memoryIndex > memory.lastIndex)
                 throw RuntimeException("Invalid memory index: $memoryIndex")
 
             when (input[inputIndex]) {
-                '+' -> memory[memoryIndex]++
+                '+' -> if (memory[memoryIndex].code + 1 > 255) memory[memoryIndex] = '\u0000' else memory[memoryIndex]++
 
-                '-' -> memory[memoryIndex]--
+                '-' -> if (memory[memoryIndex].code - 1 < 0) memory[memoryIndex] = '\u00FF' else memory[memoryIndex]--
 
                 '>' -> memoryIndex++
 
                 '<' -> memoryIndex--
 
                 '.' -> {
+                    //stream.write(memory[memoryIndex].code)
                     stream.write(memory[memoryIndex].code)
                     stream.flush()
                 }
@@ -33,16 +34,40 @@ class Interpreter(private val byteArraySize: Int, private val stream: OutputStre
                 }
 
                 '[' -> {
-                    val d = input.substring(inputIndex + 1).takeWhile {it != ']'}
+                    val l = parseLoop(input, inputIndex)
+                    //println(l)
                     while (memory[memoryIndex] > '\u0000') {
                         //println(d)
-                        parse(input.substring(inputIndex + 1,  d.length + inputIndex + 1))
-                        memory[memoryIndex]--
+                        parse(l)
+                        //if (memory[memoryIndex].code - 1 < 0) memory[memoryIndex] = '\u0000' else memory[memoryIndex]--
                     }
-                    inputIndex = d.length + inputIndex
+                    inputIndex += l.length
                 }
             }
+            //memory.forEachIndexed{i, c -> print("${if (i == memoryIndex) '*' else ""}${c.code}, ")}
+            //print('\n')
             inputIndex++
         }
+    }
+
+    private fun parseLoop(input: String, index: Int): String {
+        val slice = input.substring(index + 1)
+        var result = ""
+        var bracketCount = 0
+        for (i in slice) {
+            if (i == '[') {
+                bracketCount++
+                result += i
+            }
+            else if (i == ']' && bracketCount == 0)
+                return result
+            else if (i == ']') {
+                bracketCount--
+                result += i
+            }
+            else
+                result += i
+        }
+        return result
     }
 }
