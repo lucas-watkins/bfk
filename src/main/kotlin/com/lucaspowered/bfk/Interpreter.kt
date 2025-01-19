@@ -6,7 +6,14 @@ class Interpreter(byteArraySize: Int, private val stream: OutputStream) {
     private val memory = CharArray(byteArraySize)
     private var memoryIndex = 0
 
-    fun parse(input: String) {
+    fun run(input: String) {
+        memoryIndex = 0
+        if (memory.any {it > '\u0000'})
+            memory.forEachIndexed {i, _ -> memory[i] = '\u0000' }
+        handle(input)
+    }
+
+    private fun handle(input: String) {
         var inputIndex = 0
         while (inputIndex < input.length) {
             if (memoryIndex > memory.lastIndex)
@@ -38,7 +45,7 @@ class Interpreter(byteArraySize: Int, private val stream: OutputStream) {
                     //println(l)
                     while (memory[memoryIndex] > '\u0000') {
                         //println(d)
-                        parse(l)
+                        handle(l)
                         //if (memory[memoryIndex].code - 1 < 0) memory[memoryIndex] = '\u0000' else memory[memoryIndex]--
                     }
                     inputIndex += l.length
