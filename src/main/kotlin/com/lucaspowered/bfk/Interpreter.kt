@@ -2,7 +2,7 @@ package com.lucaspowered.bfk
 
 import java.io.OutputStream
 
-class Interpreter(byteArraySize: Int, private val stream: OutputStream) {
+class Interpreter(byteArraySize: Int = 30_000, private val stream: OutputStream = System.out) {
     private val memory = CharArray(byteArraySize)
     private var memoryIndex = 0
 
