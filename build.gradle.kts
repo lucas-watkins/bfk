@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "com.lucaspowered"
-version = "1.0-SNAPSHOT"
+version = ""
 
 application {
     mainClass = "com.lucaspowered.bfk.MainKt"
@@ -22,6 +22,17 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
 kotlin {
     jvmToolchain(21)
+}
+
+tasks.jar {
+    manifest.attributes["Main-Class"] = "com.lucaspowered.bfk.MainKt"
+    val dependencies = configurations
+        .runtimeClasspath
+        .get()
+        .map(::zipTree)
+    from(dependencies)
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
